@@ -1,0 +1,13 @@
+server:
+  port: 8111
+frpc:
+  server:
+    ip: 127.0.0.1
+    port: 30001
+    name: frpc-server
+    nacos:
+      addr: 127.0.0.1:8848
+      username: nacos
+      password: nacosdev
+
+

@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.tyc.frpc.starter.config.FrpcServerAutoConfiguration
