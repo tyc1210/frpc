@@ -1,6 +1,7 @@
 package com.tyc.frpc.starter.register;
 
 import com.tyc.frpc.client.annotation.RpcReferenceBeanPostProcessor;
+import com.tyc.frpc.server.annotation.RpcServiceBeanPostProcessor;
 import com.tyc.frpc.starter.annoattion.FrpcComponentScan;
 import com.tyc.frpc.starter.listener.BootstrapApplicationListener;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -30,6 +31,7 @@ public class FrpcComponentScanRegistrar implements ImportBeanDefinitionRegistrar
         Set<String> packagesToScan = getPackagesToScan(importingClassMetadata);
 //        registerServiceAnnotationBeanPostProcessor(packagesToScan, registry);
         registerReferenceAnnotationBeanPostProcessor(packagesToScan,registry);
+        registerServiceAnnotationBeanPostProcessor(packagesToScan,registry);
         registerBootstrapApplicationListener(packagesToScan,registry);
     }
 
@@ -46,10 +48,10 @@ public class FrpcComponentScanRegistrar implements ImportBeanDefinitionRegistrar
      * @param packagesToScan
      * @param registry
      */
-//    private void registerServiceAnnotationBeanPostProcessor(Set<String> packagesToScan, BeanDefinitionRegistry registry) {
-//        registerInfrastructureBean(registry,
-//                RpcServiceBeanPostProcessor.class.getName(), RpcServiceBeanPostProcessor.class);
-//    }
+    private void registerServiceAnnotationBeanPostProcessor(Set<String> packagesToScan, BeanDefinitionRegistry registry) {
+        registerInfrastructureBean(registry,
+                RpcServiceBeanPostProcessor.class.getName(), RpcServiceBeanPostProcessor.class);
+    }
 
     /**
      * 注册处理@Referance注解的后置处理器

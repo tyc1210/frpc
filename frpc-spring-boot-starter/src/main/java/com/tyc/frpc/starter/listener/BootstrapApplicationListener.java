@@ -49,7 +49,7 @@ public class BootstrapApplicationListener extends OneTimeExecutionApplicationCon
     private void onContextRefreshedEvent(ContextRefreshedEvent event){
         ApplicationContext applicationContext = event.getApplicationContext();
         // 将带有@RpcService注解的bean放入缓存
-        putRpcServiceBean(scanPaths,applicationContext);
+//        putRpcServiceBean(scanPaths,applicationContext);
         // 根据容器中的bean判断 启动server、client 服务
         boolean empty = MethodCache.methodMap.isEmpty();
         String[] rpcFactoryBeans = applicationContext.getBeanNamesForType(ReferenceBean.class);
