@@ -3,11 +3,13 @@ package com.tyc.frpc.client.bean;
 import com.alibaba.fastjson.JSONObject;
 import com.tyc.frpc.client.FrpcClientBootStrap;
 import com.tyc.frpc.client.handler.RpcResultHandler;
+import com.tyc.frpc.client.manager.PendingFutureManager;
 import com.tyc.frpc.codec.message.RpcRequest;
 import com.tyc.frpc.codec.message.RpcResult;
 import com.tyc.frpc.common.exception.RpcException;
 import com.tyc.frpc.common.util.IDUtil;
 import io.netty.channel.Channel;
+import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.DefaultPromise;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -41,17 +43,7 @@ public class ReferenceBean<T> implements FactoryBean<T> {
                 Channel channel = FrpcClientBootStrap.getChannel();
                 if (channel.isActive()) {
                     channel.writeAndFlush(rpcRequest);
-                    // 准备Promise获取结果 传入的eventLoop代表若异步获取Promise结果由哪个线程处理
-                    DefaultPromise<RpcResult> promise = new DefaultPromise<>(channel.eventLoop());
-                    RpcResultHandler.map.put(rpcRequest.getId(),promise);
-                    // 阻塞等待获取结果
-                    promise.await();
-                    if(promise.isSuccess()){
-                        RpcResult rpcResult = promise.getNow();
-                        return JSONObject.parseObject(rpcResult.getResultData(),method.getReturnType());
-                    }else {
-                        throw new RpcException(promise.cause().getMessage());
-                    }
+                    return PendingFutureManager.pendingResult(rpcRequest.getId(),channel.eventLoop(),method);
                 }else {
                     throw new RpcException("连接异常");
                 }

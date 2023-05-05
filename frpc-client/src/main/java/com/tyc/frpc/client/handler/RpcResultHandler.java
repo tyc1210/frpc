@@ -1,6 +1,7 @@
 package com.tyc.frpc.client.handler;
 
 import com.alibaba.fastjson.JSONObject;
+import com.tyc.frpc.client.manager.PendingFutureManager;
 import com.tyc.frpc.codec.message.RpcResult;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,13 +25,6 @@ public class RpcResultHandler extends SimpleChannelInboundHandler<RpcResult> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResult rpcResult) throws Exception {
         log.info("客户端收到消息：{}", JSONObject.toJSONString(rpcResult));
-        Promise<RpcResult> promise = map.remove(rpcResult.getId());
-        if(null != promise){
-            if(rpcResult.getCode().equals(0)){
-                promise.setSuccess(rpcResult);
-            }else {
-                promise.setFailure(new RuntimeException(rpcResult.getResultData()));
-            }
-        }
+        PendingFutureManager.receiveResult(rpcResult);
     }
 }
