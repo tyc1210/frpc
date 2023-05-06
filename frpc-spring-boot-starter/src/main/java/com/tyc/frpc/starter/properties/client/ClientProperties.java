@@ -13,15 +13,43 @@ import org.springframework.stereotype.Component;
  */
 @ConfigurationProperties(prefix = "frpc.client")
 public class ClientProperties {
+    /**
+     * 服务提供者地址
+     */
     private String ip = "127.0.0.1";
 
+    /**
+     * 服务启动者端口
+     */
     private Integer port = 30001;
 
-    private Integer threadNum = 4;
+    /**
+     * netty NioEventLoopGroup 中的线程数
+     */
+    private Integer threadNum;
 
+    /**
+     * 注册中心中服务提供者名称
+     */
     private String serviceName = "frpc-server";
 
+    /**
+     * 是否可以
+     */
     private boolean enabled = true;
+
+    /**
+     * 连接池最大数量
+     */
+    private Integer poolSize = 8;
+
+    public Integer getPoolSize() {
+        return poolSize;
+    }
+
+    public void setPoolSize(Integer poolSize) {
+        this.poolSize = poolSize;
+    }
 
     public boolean isEnabled() {
         return enabled;

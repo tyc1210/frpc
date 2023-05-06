@@ -3,9 +3,11 @@ package com.tyc.frpc.client;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.tyc.frpc.client.config.FrpcClientConfig;
 import com.tyc.frpc.client.config.FrpcClientNacosConfig;
+import com.tyc.frpc.client.factory.ClientChannelPoolFactory;
 import com.tyc.frpc.client.handler.HeartBeatHandler;
 import com.tyc.frpc.client.handler.QuitHandler;
 import com.tyc.frpc.client.handler.RpcResultHandler;
+import com.tyc.frpc.client.handler.SimpleChannelPoolHandler;
 import com.tyc.frpc.client.nacos.NacosFactory;
 import com.tyc.frpc.codec.DefaultLengthFieldBasedFrameDecoder;
 import com.tyc.frpc.codec.MessageCodec;
@@ -20,6 +22,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,14 +36,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class FrpcClientBootStrap {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final int MAX_CONNECTIONS = 10;
 
+//    private static Channel channel;
+    public static GenericObjectPool<Channel> channelPool;
 
-    private static Channel channel;
-
-    public static Channel getChannel() {
-        return channel;
+    public static void returnChannel(Channel channel){
+        // 通知连接池管理器，连接已经被归还
+        channelPool.returnObject(channel);
     }
 
+    public static Channel getChannel() {
+        while (true) {
+            Channel channel = null;
+            try {
+                // 从连接池中借用一个连接
+                channel = channelPool.borrowObject();
+                return channel;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private AtomicBoolean started = new AtomicBoolean(false);
     private final FrpcClientConfig clientConfig;
@@ -59,7 +76,7 @@ public class FrpcClientBootStrap {
     }
 
     public void checkNacos(){
-        if(clientConfig != null && StringUtils.isNotBlank(clientConfig.getServiceName())){
+        if(nacosConfig != null && StringUtils.isNotBlank(nacosConfig.getAddr())){
             NacosFactory nacosFactory = new NacosFactory(nacosConfig);
             Instance instance = nacosFactory.subscribe(clientConfig.getServiceName());
             clientConfig.setIp(instance.getIp());
@@ -70,7 +87,7 @@ public class FrpcClientBootStrap {
 
     private void init(){
         Integer threadNum = clientConfig.getThreadNum();
-        threadNum = threadNum == null || threadNum == 0 ? 8 : threadNum;
+        threadNum = threadNum == null || threadNum == 0 ? Runtime.getRuntime().availableProcessors() * 2 : threadNum;
         NioEventLoopGroup loopGroup = new NioEventLoopGroup(threadNum);
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(loopGroup);
@@ -98,11 +115,15 @@ public class FrpcClientBootStrap {
                     ch.pipeline().addLast(rpcResultHandler);
                 }
             });
-            channel = bootstrap.connect(clientConfig.getIp(), clientConfig.getPort()).sync().channel();
-            log.info("frpc client start success ===>{}",clientConfig.getIp()+":"+clientConfig.getPort());
-            channel.closeFuture().addListener(future -> {
-                loopGroup.shutdownGracefully();
-            });
+            // 初始化channelPool
+            channelPool = new GenericObjectPool<>(new ClientChannelPoolFactory(new SimpleChannelPoolHandler(), bootstrap,clientConfig.getIp(),clientConfig.getPort()));
+            channelPool.setMaxTotal(clientConfig.getPoolSize());
+            log.info("frpc client init success ===>{}",clientConfig.getIp()+":"+clientConfig.getPort());
+//            channel = bootstrap.connect(clientConfig.getIp(), clientConfig.getPort()).sync().channel();
+//            log.info("frpc client start success ===>{}",clientConfig.getIp()+":"+clientConfig.getPort());
+//            channel.closeFuture().addListener(future -> {
+//                loopGroup.shutdownGracefully();
+//            });
         } catch (Throwable throwable) {
             throw new RpcException(throwable.getMessage());
         }

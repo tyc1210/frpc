@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  */
 @ConfigurationProperties(prefix = "frpc.client.nacos")
 public class ClientNacosProperties {
-    private String addr = "127.0.0.1:8848";
+    private String addr = "";
     private String username = "";
     private String password = "";
 

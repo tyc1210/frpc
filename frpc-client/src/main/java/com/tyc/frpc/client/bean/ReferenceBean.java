@@ -40,13 +40,20 @@ public class ReferenceBean<T> implements FactoryBean<T> {
                 // 调用 netty 客户端发送消息
                 String classMethodName = new StringBuilder(method.getDeclaringClass().getName()).append(".").append(method.getName()).toString();
                 RpcRequest rpcRequest = new RpcRequest(IDUtil.getLimitId(),classMethodName,args);
-                Channel channel = FrpcClientBootStrap.getChannel();
-                if (channel.isActive()) {
+                // 获取channel
+                Channel channel = null;
+                try {
+                    channel = FrpcClientBootStrap.getChannel();
                     channel.writeAndFlush(rpcRequest);
-                    return PendingFutureManager.pendingResult(rpcRequest.getId(),channel.eventLoop(),method);
-                }else {
-                    throw new RpcException("连接异常");
+                    return PendingFutureManager.pendingResult(rpcRequest.getId(), channel.eventLoop(), method);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    if(null != channel){
+                        FrpcClientBootStrap.returnChannel(channel);
+                    }
                 }
+                return null;
             }
         };
         return (T) Proxy.newProxyInstance(this.getClass().getClassLoader(),new Class[]{aClass},handler);

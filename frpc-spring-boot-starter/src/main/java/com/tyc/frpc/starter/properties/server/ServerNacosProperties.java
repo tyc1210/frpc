@@ -16,7 +16,7 @@ public class ServerNacosProperties {
     /**
      * nacos 地址
      */
-    private String addr = "127.0.0.1:8848";
+    private String addr = "";
     private String username = "";
     private String password = "";
 

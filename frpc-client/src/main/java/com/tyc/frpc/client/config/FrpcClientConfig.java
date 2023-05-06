@@ -21,6 +21,16 @@ public class FrpcClientConfig {
 
     private boolean enabled;
 
+    private Integer poolSize;
+
+    public Integer getPoolSize() {
+        return poolSize;
+    }
+
+    public void setPoolSize(Integer poolSize) {
+        this.poolSize = poolSize;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }

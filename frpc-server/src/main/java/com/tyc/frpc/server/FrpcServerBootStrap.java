@@ -50,9 +50,9 @@ public class FrpcServerBootStrap {
     /**
      * 服务注册到注册中心
      */
-    public void registServer(){
-        NacosFactory nacosFactory = new NacosFactory(nacosConfigProperties);
+    public void registerServer(){
         if(null != nacosConfigProperties && StringUtils.isNotBlank(nacosConfigProperties.getAddr())){
+            NacosFactory nacosFactory = new NacosFactory(nacosConfigProperties);
             nacosFactory.register(frpcConfigProperties.getName(),frpcConfigProperties.getIp(),frpcConfigProperties.getPort());
         }
     }
@@ -105,7 +105,7 @@ public class FrpcServerBootStrap {
                     });
             future = bootstrap.bind(frpcConfigProperties.getPort()).sync();
             log.info("frpc server start success,port:{}",frpcConfigProperties.getPort());
-            registServer();
+            registerServer();
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
