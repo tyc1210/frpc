@@ -1,7 +1,5 @@
 package com.tyc.frpc.server.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 /**
  * 类描述
  *

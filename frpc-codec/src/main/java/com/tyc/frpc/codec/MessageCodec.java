@@ -62,7 +62,7 @@ public class MessageCodec extends MessageToMessageCodec<ByteBuf, Message> {
         buffer.writeInt(msgBytes.length);
         // 写入数据
         buffer.writeBytes(msgBytes);
-        log.info("encode data ===> :{}",LogUtil.log(buffer));
+        log.debug("encode data ===> :{}",LogUtil.log(buffer));
         out.add(buffer);
     }
 
@@ -85,7 +85,7 @@ public class MessageCodec extends MessageToMessageCodec<ByteBuf, Message> {
             log.error("无效的消息");
             return;
         }
-        log.info("decode data ===> \n 魔数:{},协议版本:{},序列化方式:{},报文类型:{},状态:{},消息id:{},消息长度:{},消息：{}"
+        log.debug("decode data ===> \n 魔数:{},协议版本:{},序列化方式:{},报文类型:{},状态:{},消息id:{},消息长度:{},消息：{}"
                 ,new String(magicNum),protocolVersion,serializeType,message,state,id,length,message.toString());
         out.add(message);
     }

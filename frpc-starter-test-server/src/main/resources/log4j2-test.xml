@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="off" monitorInterval="1800">
+
+    <properties>
+        <property name="LOG_HOME">logs</property>
+        <property name="FILE_NAME">run</property>
+    </properties>
+
+    <Appenders>
+        <!--控制台日志-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%date{yyyy-MM-ddZ} %level [%thread][%file:%line] - %msg%n"/>
+        </Console>
+
+        <!--系统运行日志-->
+        <RollingFile name="Run"
+                     fileName="${LOG_HOME}/${FILE_NAME}.log"
+                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}-%i.log">
+            <!--过滤掉LogEvent中有DATA或Trace标记的日志-->
+            <Filters>
+                <!--DENY拒绝接收、ACCEPT接收、NEUTRAL中立-->
+                <!--如果日志事件LogEvent中有DATA标记，则直接拒绝这个日志事件-->
+                <MarkerFilter marker="DATA" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <!--如果日志事件LogEvent中有Trace标记，则直接拒绝这个日志事件-->
+                <MarkerFilter marker="Trace" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>
+
+            <PatternLayout
+                    pattern="systemRunningLog|%date{yyyy-MM-dd}|%date{yyyy-MM-dd HH:mm:ss.SSS}|%level [%thread][%file:%line] - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <!-- 指定每天的最大文件个数，默认7个，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <!--打点日志-->
+        <RollingFile name="Data"
+                     fileName="${LOG_HOME}/data.log"
+                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/data-%d{yyyy-MM-dd}-%i.log">
+            <!--只打印日志事件LogEvent中有DATA标记，其它拒绝-->
+            <MarkerFilter marker="DATA" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="oplogs|%date{yyyy-MM-dd}|%date{yyyy-MM-dd HH:mm:ss.SSS}|%msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <!--业务追踪日志-->
+        <RollingFile name="Trace"
+                     fileName="${LOG_HOME}/trace.log"
+                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/data-%d{yyyy-MM-dd}-%i.log">
+            <!--只打印日志事件LogEvent中有Trace标记，其它拒绝-->
+            <MarkerFilter marker="Trace" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!--%X{traceId}来定义此处会打印MDC-->
+            <PatternLayout pattern="oplogs|%date{yyyy-MM-dd}|%date{yyyy-MM-dd HH:mm:ss.SSS}|%X{traceId}|%msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <!--错误日志-->
+        <RollingFile name="Error"
+                     fileName="${LOG_HOME}/error.log"
+                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log">
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%date{yyyy-MM-dd}|%date{yyyy-MM-dd HH:mm:ss.SSS}|%level [%thread][%file:%line] - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+        </RollingFile>
+
+    </Appenders>
+
+    <loggers>
+        <!--过滤掉spring和mybatis的一些无用的debug信息 ${env:LOG_LEVEL:-WARN} 读取环境变量给默认值-->
+        <logger name="org.springframework" level="${env:LOG_LEVEL:-WARN}"></logger>
+        <logger name="org.mybatis" level="${env:LOG_LEVEL:-WARN}"></logger>
+        <!--统一配置打印级别-->
+        <Root level="trace">
+            <AppenderRef ref="Run" level="${env:LOG_LEVEL:-INFO}"/>
+            <AppenderRef ref="Console" level="${env:LOG_LEVEL:-INFO}"/>
+            <AppenderRef ref="Data" level="trace"/>
+            <AppenderRef ref="Trace" level="trace"/>
+            <AppenderRef ref="Error" level="error"/>
+        </Root>
+    </loggers>
+</Configuration>

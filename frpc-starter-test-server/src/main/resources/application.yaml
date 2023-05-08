@@ -1,5 +1,6 @@
 server:
   port: 8111
 
-
+logging:
+  config: classpath:log4j2-test.xml
 
