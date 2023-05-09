@@ -19,15 +19,25 @@ public class SerializeStrategyContext {
     private SerializeStrategy serializeStrategy;
 
     public SerializeStrategyContext(Byte serializeType) {
-        if(serializeType.equals(SerializeType.JSON.getCode())){
-            serializeStrategy = new JSONSerialize();
+        SerializeType type = SerializeType.getByCode(serializeType);
+        switch (type){
+            case JSON:
+                serializeStrategy = new JSONSerialize();
+                break;
+            case JAVA:
+                serializeStrategy = new JavaSerialize();
+                break;
+            case ProtoBuf:
+                serializeStrategy = new ProtocolSerialize();
+            default:
+                break;
         }
     }
 
 
 
     public Message deSerialize(byte[] data, MessageType messageType){
-        Class aClass = MessageType.getClass(messageType);
+        Class aClass = MessageType.getClassByType(messageType);
         if(Objects.isNull(aClass) || Objects.isNull(serializeStrategy)){
             return null;
         }

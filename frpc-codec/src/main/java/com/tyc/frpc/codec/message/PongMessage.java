@@ -1,9 +1,15 @@
 package com.tyc.frpc.codec.message;
 
 public class PongMessage extends Message {
+    private SerializeType serializeType;
+
+    public PongMessage(String serializeType) {
+        this.serializeType = SerializeType.getByMsg(serializeType);
+    }
+
     @Override
     public SerializeType getSerializeType() {
-        return SerializeType.JSON;
+        return this.serializeType;
     }
 
     @Override

@@ -15,6 +15,7 @@
         <fastjson.version>1.2.70</fastjson.version>
         <frpc-common.version>0.0.1</frpc-common.version>
         <slf4j.version>1.7.32</slf4j.version>
+        <frpc-common.version>0.0.1</frpc-common.version>
     </properties>
 
     <dependencies>
@@ -34,6 +35,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tyc</groupId>
+            <artifactId>frpc-common</artifactId>
+            <version>${frpc-common.version}</version>
         </dependency>
 
     </dependencies>

@@ -11,6 +11,7 @@ import com.tyc.frpc.client.handler.SimpleChannelPoolHandler;
 import com.tyc.frpc.client.nacos.NacosFactory;
 import com.tyc.frpc.codec.DefaultLengthFieldBasedFrameDecoder;
 import com.tyc.frpc.codec.MessageCodec;
+import com.tyc.frpc.codec.message.SerializeType;
 import com.tyc.frpc.common.exception.RpcException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -36,7 +37,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class FrpcClientBootStrap {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private static final int MAX_CONNECTIONS = 10;
+    private AtomicBoolean started = new AtomicBoolean(false);
+    private final FrpcClientConfig clientConfig;
+    private final FrpcClientNacosConfig nacosConfig;
+    public static String serializeType;
 
 //    private static Channel channel;
     public static GenericObjectPool<Channel> channelPool;
@@ -59,13 +63,10 @@ public class FrpcClientBootStrap {
         }
     }
 
-    private AtomicBoolean started = new AtomicBoolean(false);
-    private final FrpcClientConfig clientConfig;
-    private final FrpcClientNacosConfig nacosConfig;
-
     public FrpcClientBootStrap(FrpcClientConfig clientConfig, FrpcClientNacosConfig nacosConfig) {
         this.clientConfig = clientConfig;
         this.nacosConfig = nacosConfig;
+        serializeType = clientConfig.getSerializeType();
     }
 
     public void start(){
@@ -93,26 +94,23 @@ public class FrpcClientBootStrap {
         bootstrap.group(loopGroup);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000);
-        /**
-         * 添加各种 handler
-         */
-        LoggingHandler loggingHandler = new LoggingHandler(LogLevel.DEBUG);
-        MessageCodec messageCodec = new MessageCodec();
-        RpcResultHandler rpcResultHandler = new RpcResultHandler();
 
         try {
             bootstrap .handler(new ChannelInitializer<NioSocketChannel>() {
                 @Override
                 protected void initChannel(NioSocketChannel ch)
                         throws Exception {
+                    /**
+                     * 添加各种 handler
+                     */
                     ch.pipeline().addLast(new DefaultLengthFieldBasedFrameDecoder());
-                    ch.pipeline().addLast(loggingHandler);
-                    ch.pipeline().addLast(messageCodec);
+                    ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
+                    ch.pipeline().addLast(new MessageCodec());
                     ch.pipeline().addLast(new IdleStateHandler(0,3,0));
                     ch.pipeline().addLast(new IdleStateHandler(10,0,0));
                     ch.pipeline().addLast(new HeartBeatHandler());
                     ch.pipeline().addLast(new QuitHandler());
-                    ch.pipeline().addLast(rpcResultHandler);
+                    ch.pipeline().addLast(new RpcResultHandler());
                 }
             });
             // 初始化channelPool

@@ -26,6 +26,19 @@ public class FrpcServerConfig {
      */
     private boolean enabled;
 
+    /**
+     * 序列化方式
+     */
+    private String serializeType;
+
+    public String getSerializeType() {
+        return serializeType;
+    }
+
+    public void setSerializeType(String serializeType) {
+        this.serializeType = serializeType;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }

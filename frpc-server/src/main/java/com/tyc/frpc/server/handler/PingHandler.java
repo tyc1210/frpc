@@ -3,6 +3,7 @@ package com.tyc.frpc.server.handler;
 
 import com.tyc.frpc.codec.message.PingMessage;
 import com.tyc.frpc.codec.message.PongMessage;
+import com.tyc.frpc.server.FrpcServerBootStrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -14,7 +15,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @date 2022-08-09 17:18:48
  */
 public class PingHandler extends SimpleChannelInboundHandler<PingMessage> {
-    private final PongMessage pongMessage = new PongMessage();
+    private final PongMessage pongMessage = new PongMessage(FrpcServerBootStrap.serializeType);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, PingMessage msg) throws Exception {

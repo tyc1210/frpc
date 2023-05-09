@@ -1,5 +1,6 @@
 package com.tyc.frpc.client.handler;
 
+import com.tyc.frpc.client.FrpcClientBootStrap;
 import com.tyc.frpc.codec.message.PingMessage;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class HeartBeatHandler extends ChannelDuplexHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final PingMessage pingMessage = new PingMessage();
+    private final PingMessage pingMessage = new PingMessage(FrpcClientBootStrap.serializeType);
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {

@@ -21,7 +21,7 @@ public enum  MessageType {
         this.msg = msg;
     }
 
-    public static Class getClass(MessageType type){
+    public static Class getClassByType(MessageType type){
         switch (type){
             case REQUEST:
                 return RpcRequest.class;

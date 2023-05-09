@@ -30,6 +30,19 @@ public class ServerProperties {
      */
     private boolean enabled = true;
 
+    /**
+     * 序列化方式：json|java|protobuf
+     */
+    private String serializeType = "json";
+
+    public String getSerializeType() {
+        return serializeType;
+    }
+
+    public void setSerializeType(String serializeType) {
+        this.serializeType = serializeType;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }

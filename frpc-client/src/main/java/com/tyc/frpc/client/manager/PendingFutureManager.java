@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0
  * @date 2023-05-05 16:21:19
  */
-public class PendingFutureManager<T> {
+public class PendingFutureManager {
     public static Map<Integer, Promise<RpcResult>> map = new ConcurrentHashMap<>();
 
     public static Object pendingResult(Integer requestId, EventLoop eventLoop, Method method) throws InterruptedException {
@@ -29,7 +29,7 @@ public class PendingFutureManager<T> {
         promise.await();
         if(promise.isSuccess()){
             RpcResult rpcResult = promise.getNow();
-            return JSONObject.parseObject(rpcResult.getResultData(),method.getReturnType());
+            return rpcResult.getResultData();
         }else {
             throw new RpcException(promise.cause().getMessage());
         }
@@ -41,7 +41,7 @@ public class PendingFutureManager<T> {
             if(rpcResult.getCode().equals(0)){
                 resultPromise.setSuccess(rpcResult);
             }else {
-                resultPromise.setFailure(new RuntimeException(rpcResult.getResultData()));
+                resultPromise.setFailure(new RuntimeException(JSONObject.toJSONString(rpcResult.getResultData())));
             }
         }
     }

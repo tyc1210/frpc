@@ -21,6 +21,16 @@ public class FrpcClientConfig {
 
     private Integer poolSize;
 
+    private String serializeType;
+
+    public String getSerializeType() {
+        return serializeType;
+    }
+
+    public void setSerializeType(String serializeType) {
+        this.serializeType = serializeType;
+    }
+
     public Integer getPoolSize() {
         return poolSize;
     }

@@ -17,7 +17,6 @@
         <netty.version>4.1.63.Final</netty.version>
         <commons-pool2.version>2.11.1</commons-pool2.version>
         <fastjson.version>1.2.70</fastjson.version>
-        <frpc-common.version>0.0.1</frpc-common.version>
         <spring.version>5.3.9</spring.version>
     </properties>
 
@@ -44,12 +43,6 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tyc</groupId>
-            <artifactId>frpc-common</artifactId>
-            <version>${frpc-common.version}</version>
         </dependency>
 
         <dependency>

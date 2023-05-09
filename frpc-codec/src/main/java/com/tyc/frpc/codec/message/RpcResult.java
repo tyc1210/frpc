@@ -10,12 +10,14 @@ package com.tyc.frpc.codec.message;
 public class RpcResult extends Message{
     private Integer code;
     private Integer id;
-    private String resultData;
+    private Object resultData;
+    private SerializeType serializeType;
 
-    public RpcResult(Integer code, Integer id, String resultData) {
+    public RpcResult(Integer code, Integer id, Object resultData,String serializeType) {
         this.code = code;
         this.id = id;
         this.resultData = resultData;
+        this.serializeType = SerializeType.getByMsg(serializeType);
     }
 
     public Integer getCode() {
@@ -34,7 +36,7 @@ public class RpcResult extends Message{
         this.id = id;
     }
 
-    public String getResultData() {
+    public Object getResultData() {
         return resultData;
     }
 
@@ -44,7 +46,7 @@ public class RpcResult extends Message{
 
     @Override
     public SerializeType getSerializeType() {
-        return SerializeType.JSON;
+        return this.serializeType;
     }
 
     @Override

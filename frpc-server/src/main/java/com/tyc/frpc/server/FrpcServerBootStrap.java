@@ -34,10 +34,12 @@ public class FrpcServerBootStrap {
 
     private FrpcServerConfig frpcConfigProperties;
     private FrpcServerNacosConfig nacosConfigProperties;
+    public static String serializeType;
 
     public FrpcServerBootStrap(FrpcServerConfig frpcConfigProperties, FrpcServerNacosConfig nacosConfigProperties) {
         this.frpcConfigProperties = frpcConfigProperties;
         this.nacosConfigProperties = nacosConfigProperties;
+        serializeType = frpcConfigProperties.getSerializeType();
     }
 
     private ChannelFuture future = null;

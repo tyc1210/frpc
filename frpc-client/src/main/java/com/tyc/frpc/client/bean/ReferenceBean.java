@@ -39,7 +39,7 @@ public class ReferenceBean<T> implements FactoryBean<T> {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 // 调用 netty 客户端发送消息
                 String classMethodName = new StringBuilder(method.getDeclaringClass().getName()).append(".").append(method.getName()).toString();
-                RpcRequest rpcRequest = new RpcRequest(IDUtil.getLimitId(),classMethodName,args);
+                RpcRequest rpcRequest = new RpcRequest(IDUtil.getLimitId(),classMethodName,args,FrpcClientBootStrap.serializeType);
                 // 获取channel
                 Channel channel = null;
                 try {

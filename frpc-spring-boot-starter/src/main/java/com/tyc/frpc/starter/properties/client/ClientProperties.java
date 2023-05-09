@@ -43,6 +43,19 @@ public class ClientProperties {
      */
     private Integer poolSize = 8;
 
+    /**
+     * 序列化方式：json|java|protobuf
+     */
+    private String serializeType = "json";
+
+    public String getSerializeType() {
+        return serializeType;
+    }
+
+    public void setSerializeType(String serializeType) {
+        this.serializeType = serializeType;
+    }
+
     public Integer getPoolSize() {
         return poolSize;
     }

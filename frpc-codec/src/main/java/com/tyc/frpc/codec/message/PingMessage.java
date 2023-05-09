@@ -1,9 +1,15 @@
 package com.tyc.frpc.codec.message;
 
 public class PingMessage extends Message {
+    private SerializeType serializeType;
+
+    public PingMessage(String serializeType) {
+        this.serializeType = SerializeType.getByMsg(serializeType);
+    }
+
     @Override
     public SerializeType getSerializeType() {
-        return SerializeType.JSON;
+        return this.serializeType;
     }
 
     @Override

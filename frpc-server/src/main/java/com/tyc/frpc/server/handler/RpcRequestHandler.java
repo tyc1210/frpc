@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.tyc.frpc.codec.message.RpcRequest;
 import com.tyc.frpc.codec.message.RpcResult;
 import com.tyc.frpc.common.exception.RpcException;
+import com.tyc.frpc.server.FrpcServerBootStrap;
 import com.tyc.frpc.server.cache.MethodCache;
 import com.tyc.frpc.server.util.BeanUtils;
 import io.netty.channel.ChannelHandler;
@@ -53,12 +54,11 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
                 }
             }
             Object result = method.invoke(methodContext.getBean(), params);
-            String data = JSONObject.toJSONString(result);
-            rpcResult = new RpcResult(0,rpcRequest.getId(),data);
+            rpcResult = new RpcResult(0,rpcRequest.getId(),result, FrpcServerBootStrap.serializeType);
             log.debug("返回客户端执行结果:{}",JSONObject.toJSONString(rpcResult));
         } catch (Exception e) {
             log.error("消息处理异常 ===》id:{},msg:{}",rpcRequest.getId(),e.getMessage());
-            rpcResult = new RpcResult(-1,rpcRequest.getId(),e.getMessage());
+            rpcResult = new RpcResult(-1,rpcRequest.getId(),e.getMessage(),FrpcServerBootStrap.serializeType);
         }
         ctx.channel().writeAndFlush(rpcResult);
 //        ctx.channel().unsafe().flush();

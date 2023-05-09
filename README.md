@@ -16,9 +16,7 @@ frpc-starter-test-client 测试客户端使用Frpc
 在getObject方法里创建代理对象，在执行目标方法时，解析方法信息构造请求通过channel像指定服务端发送请求
 
 ## 服务端实现思路
-自定义@RpcService，注解@Service注解（方便spring帮我们注入到容器）当容器初始化完成时，扫描指定路径获取所有@Service注解的类，根据类型从spring容器中
-查找出对应的bean，然后将方法信息作为key,将methord和bean缓存起来。当收到请求时解析出方法信息通过反射调用目标bean执行对应方法，返回结果。
-todo: 扫描@Service 应该实现beanPostProcessor，在重载方法里判断bean是否带某个注解
+自定义@RpcService，实现beanPostProcessor，在重载方法里判断bean是否带@RpcService，若带有则将该bean进行缓存。
 
 ## starter实现思路
 自定义@EnableFrpc注解（注解上配置扫描路径），此注解通过import注入FrpcComponentScanRegistrar，该类负责将我们处理注解的postProcessor、监听器等注入到容器中。

@@ -12,11 +12,13 @@ public class RpcRequest extends Message{
     private Integer id;
     private String classMethodName;
     private Object[] args;
+    private SerializeType serializeType;
 
-    public RpcRequest(Integer id, String methodName, Object[] args) {
+    public RpcRequest(Integer id, String methodName, Object[] args,String serializeType) {
         this.id = id;
         this.classMethodName = methodName;
         this.args = args;
+        this.serializeType = SerializeType.getByMsg(serializeType);
     }
 
     public Integer getId() {
@@ -45,7 +47,7 @@ public class RpcRequest extends Message{
 
     @Override
     public SerializeType getSerializeType() {
-        return SerializeType.JSON;
+        return this.serializeType;
     }
 
     @Override
