@@ -41,6 +41,7 @@ public class FrpcClientBootStrap {
     private final FrpcClientConfig clientConfig;
     private final FrpcClientNacosConfig nacosConfig;
     public static String serializeType;
+    public static Long timeout;
 
 //    private static Channel channel;
     public static GenericObjectPool<Channel> channelPool;
@@ -67,6 +68,7 @@ public class FrpcClientBootStrap {
         this.clientConfig = clientConfig;
         this.nacosConfig = nacosConfig;
         serializeType = clientConfig.getSerializeType();
+        timeout = clientConfig.getTimeout();
     }
 
     public void start(){
@@ -93,7 +95,8 @@ public class FrpcClientBootStrap {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(loopGroup);
         bootstrap.channel(NioSocketChannel.class);
-        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000);
+        // 设置连接超时时间
+        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientConfig.getConnectTimeout());
 
         try {
             bootstrap .handler(new ChannelInitializer<NioSocketChannel>() {

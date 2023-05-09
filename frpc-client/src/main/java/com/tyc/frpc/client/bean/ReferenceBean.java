@@ -45,11 +45,12 @@ public class ReferenceBean<T> implements FactoryBean<T> {
                 try {
                     channel = FrpcClientBootStrap.getChannel();
                     channel.writeAndFlush(rpcRequest);
-                    return PendingFutureManager.pendingResult(rpcRequest.getId(), channel.eventLoop(), method);
-                } catch (InterruptedException e) {
+                    return PendingFutureManager.pendingResult(rpcRequest.getId(), channel);
+                } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
                     if(null != channel){
+                        // 归还连接
                         FrpcClientBootStrap.returnChannel(channel);
                     }
                 }

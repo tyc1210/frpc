@@ -20,7 +20,7 @@ public class TestController {
     private HelloSeivice helloSeivice;
 
     @GetMapping
-    public String hello(){
+    public Object hello(){
         return helloSeivice.hello();
     }
 }

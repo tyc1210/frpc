@@ -48,6 +48,24 @@ public class ClientProperties {
      */
     private String serializeType = "json";
 
+    /**
+     * 调用超时时间，单位：毫秒，默认值：1000
+     */
+    private Long timeout = 1000L;
+
+    /**
+     * 调用超时时间，单位：毫秒，默认值：3000
+     */
+    private Integer connectTimeout = 3000;
+
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
+
     public String getSerializeType() {
         return serializeType;
     }

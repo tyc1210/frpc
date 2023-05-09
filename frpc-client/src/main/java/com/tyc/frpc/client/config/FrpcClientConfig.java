@@ -23,6 +23,26 @@ public class FrpcClientConfig {
 
     private String serializeType;
 
+    private Long timeout;
+
+    private Integer connectTimeout;
+
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
+
+    public Integer getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(Integer connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
     public String getSerializeType() {
         return serializeType;
     }
