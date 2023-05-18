@@ -13,6 +13,10 @@ public enum  MessageType {
         this.code = code;
     }
 
+    public String getMsg() {
+        return msg;
+    }
+
     public Byte getCode() {
         return code;
     }

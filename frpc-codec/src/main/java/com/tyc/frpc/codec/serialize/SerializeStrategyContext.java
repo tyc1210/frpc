@@ -5,6 +5,7 @@ package com.tyc.frpc.codec.serialize;
 import com.tyc.frpc.codec.message.Message;
 import com.tyc.frpc.codec.message.MessageType;
 import com.tyc.frpc.codec.message.SerializeType;
+import com.tyc.frpc.common.exception.RpcException;
 
 import java.util.Objects;
 
@@ -20,6 +21,9 @@ public class SerializeStrategyContext {
 
     public SerializeStrategyContext(Byte serializeType) {
         SerializeType type = SerializeType.getByCode(serializeType);
+        if(null == type){
+            throw new RpcException("invalid serializeType");
+        }
         switch (type){
             case JSON:
                 serializeStrategy = new JSONSerialize();
@@ -39,7 +43,7 @@ public class SerializeStrategyContext {
     public Message deSerialize(byte[] data, MessageType messageType){
         Class aClass = MessageType.getClassByType(messageType);
         if(Objects.isNull(aClass) || Objects.isNull(serializeStrategy)){
-            return null;
+            throw new RpcException("invalid messageType "+messageType.getMsg());
         }
         return serializeStrategy.deserialize(data,aClass);
     }

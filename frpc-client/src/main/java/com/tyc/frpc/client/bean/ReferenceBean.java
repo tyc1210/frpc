@@ -11,6 +11,8 @@ import com.tyc.frpc.common.util.IDUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.DefaultPromise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.lang.reflect.InvocationHandler;
@@ -25,6 +27,7 @@ import java.lang.reflect.Proxy;
  * @date 2022-07-22 13:46:22
  */
 public class ReferenceBean<T> implements FactoryBean<T> {
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private Class<T> aClass;
 
     public ReferenceBean(Class<T> aClass) {
@@ -47,14 +50,14 @@ public class ReferenceBean<T> implements FactoryBean<T> {
                     channel.writeAndFlush(rpcRequest);
                     return PendingFutureManager.pendingResult(rpcRequest.getId(), channel);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("pendingResult error",e);
+                    throw e;
                 } finally {
                     if(null != channel){
                         // 归还连接
                         FrpcClientBootStrap.returnChannel(channel);
                     }
                 }
-                return null;
             }
         };
         return (T) Proxy.newProxyInstance(this.getClass().getClassLoader(),new Class[]{aClass},handler);

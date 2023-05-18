@@ -86,3 +86,8 @@ channelPool.close();
 
 ```
 上述代码中，首先创建了一个 ClientBootstrap 客户端对象，用于创建并初始化客户端 Channel。然后创建了一个 ChannelPool 对象，通过 FixedChannelPool 类指定了 ChannelPool 的类型，设置了最大连接数为 10，同时指定了 MyChannelPoolHandler 对象，用于处理新建 Channel 时的初始化操作。接着通过 acquire() 方法获取一个可用的 Channel 对象，并使用该 Channel 发送请求。请求处理完成后，调用 release() 方法将该 Channel 对象标记为可用，然后最后再关闭 ChannelPool。
+
+## todo
+### 异常处理
+
+### 异常后连接用完问题排查

@@ -5,14 +5,11 @@ import com.tyc.frpc.client.config.FrpcClientConfig;
 import com.tyc.frpc.client.config.FrpcClientNacosConfig;
 import com.tyc.frpc.client.factory.ClientChannelPoolFactory;
 import com.tyc.frpc.client.handler.HeartBeatHandler;
-import com.tyc.frpc.client.handler.QuitHandler;
 import com.tyc.frpc.client.handler.RpcResultHandler;
 import com.tyc.frpc.client.handler.SimpleChannelPoolHandler;
 import com.tyc.frpc.client.nacos.NacosFactory;
 import com.tyc.frpc.codec.DefaultLengthFieldBasedFrameDecoder;
 import com.tyc.frpc.codec.MessageCodec;
-import com.tyc.frpc.codec.message.SerializeType;
-import com.tyc.frpc.common.exception.RpcException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -26,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -36,19 +34,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @date 2023-04-21 16:54:12
  */
 public class FrpcClientBootStrap {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FrpcClientBootStrap.class);
     private AtomicBoolean started = new AtomicBoolean(false);
     private final FrpcClientConfig clientConfig;
     private final FrpcClientNacosConfig nacosConfig;
     public static String serializeType;
     public static Long timeout;
-
-//    private static Channel channel;
     public static GenericObjectPool<Channel> channelPool;
 
     public static void returnChannel(Channel channel){
-        // 通知连接池管理器，连接已经被归还
+        /**
+         * 通知连接池管理器，连接已经被归还
+         * 可能发生 Returned object not currently part of this pool，因为连接可能被置为无效
+         */
         channelPool.returnObject(channel);
+    }
+
+    /**
+     * 销毁（置为无效）池子中的一个对象
+     * @param channel
+     */
+    public static void invalidateChannel(Channel channel){
+        try {
+            channelPool.invalidateObject(channel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static Channel getChannel() {
@@ -57,6 +68,7 @@ public class FrpcClientBootStrap {
             try {
                 // 从连接池中借用一个连接
                 channel = channelPool.borrowObject();
+                log.info("连接池中空闲连接数量：{}，正被使用数量：{}，等待连接数量：{}",channelPool.getNumIdle(),channelPool.getNumActive(),channelPool.getNumWaiters());
                 return channel;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -112,13 +124,14 @@ public class FrpcClientBootStrap {
                     ch.pipeline().addLast(new IdleStateHandler(0,3,0));
                     ch.pipeline().addLast(new IdleStateHandler(10,0,0));
                     ch.pipeline().addLast(new HeartBeatHandler());
-                    ch.pipeline().addLast(new QuitHandler());
                     ch.pipeline().addLast(new RpcResultHandler());
                 }
             });
             // 初始化channelPool
             channelPool = new GenericObjectPool<>(new ClientChannelPoolFactory(new SimpleChannelPoolHandler(), bootstrap,clientConfig.getIp(),clientConfig.getPort()));
             channelPool.setMaxTotal(clientConfig.getPoolSize());
+            // 设置定期清理任务
+            channelPool.setTimeBetweenEvictionRunsMillis(5000);
             log.info("frpc client init success ===>{}",clientConfig.getIp()+":"+clientConfig.getPort());
 //            channel = bootstrap.connect(clientConfig.getIp(), clientConfig.getPort()).sync().channel();
 //            log.info("frpc client start success ===>{}",clientConfig.getIp()+":"+clientConfig.getPort());
@@ -126,7 +139,7 @@ public class FrpcClientBootStrap {
 //                loopGroup.shutdownGracefully();
 //            });
         } catch (Throwable throwable) {
-            throw new RpcException(throwable.getMessage());
+            throwable.printStackTrace();
         }
     }
 

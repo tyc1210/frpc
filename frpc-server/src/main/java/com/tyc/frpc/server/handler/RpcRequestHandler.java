@@ -58,9 +58,21 @@ public class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
             log.debug("返回客户端执行结果:{}",JSONObject.toJSONString(rpcResult));
         } catch (Exception e) {
             log.error("消息处理异常 ===》id:{},msg:{}",rpcRequest.getId(),e.getMessage());
-            rpcResult = new RpcResult(-1,rpcRequest.getId(),e.getMessage(),FrpcServerBootStrap.serializeType);
+            rpcResult = new RpcResult(-1,rpcRequest.getId(),"server error msg:"+e.getMessage(),FrpcServerBootStrap.serializeType);
         }
         ctx.channel().writeAndFlush(rpcResult);
-//        ctx.channel().unsafe().flush();
+        if(rpcResult.getCode().equals(-1)){
+            ctx.channel().close();
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        String msg = cause.getMessage();
+        RpcResult rpcResult = new RpcResult(-1,null,msg,FrpcServerBootStrap.serializeType);
+        ctx.writeAndFlush(rpcResult);
+        // 关闭 Channel 连接
+        ctx.close();
     }
 }

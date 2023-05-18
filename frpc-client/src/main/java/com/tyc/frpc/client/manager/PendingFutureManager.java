@@ -35,12 +35,12 @@ public class PendingFutureManager {
                 promise.tryFailure(new TimeoutException("client pending result timeout"));
             }
         }, FrpcClientBootStrap.timeout, TimeUnit.MILLISECONDS);
-        // 等待异步操作完成
         promise.addListener(future -> timeoutFuture.cancel(false));
         // 阻塞等待获取结果
         promise.await(FrpcClientBootStrap.timeout);
         if (promise.isSuccess()) {
-            return promise.getNow().getResultData();
+            RpcResult rpcResult = promise.getNow();
+            return rpcResult.getResultData();
         }else {
             throw new RpcException(promise.cause().getMessage());
         }
@@ -52,7 +52,7 @@ public class PendingFutureManager {
             if(rpcResult.getCode().equals(0)){
                 resultPromise.setSuccess(rpcResult);
             }else {
-                resultPromise.setFailure(new RuntimeException(JSONObject.toJSONString(rpcResult.getResultData())));
+                resultPromise.setFailure(new RuntimeException(JSONObject.toJSONString(rpcResult)));
             }
         }
     }

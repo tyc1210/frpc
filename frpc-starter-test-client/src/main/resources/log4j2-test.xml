@@ -83,7 +83,7 @@
         <!--统一配置打印级别-->
         <Root level="trace">
             <AppenderRef ref="Run" level="${env:LOG_LEVEL:-INFO}"/>
-            <AppenderRef ref="Console" level="${env:LOG_LEVEL:-DEBUG}"/>
+            <AppenderRef ref="Console" level="${env:LOG_LEVEL:-INFO}"/>
             <AppenderRef ref="Data" level="trace"/>
             <AppenderRef ref="Trace" level="trace"/>
             <AppenderRef ref="Error" level="error"/>

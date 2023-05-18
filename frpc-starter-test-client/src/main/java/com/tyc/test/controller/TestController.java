@@ -21,6 +21,10 @@ public class TestController {
 
     @GetMapping
     public Object hello(){
-        return helloSeivice.hello();
+        try {
+            return helloSeivice.hello();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 }

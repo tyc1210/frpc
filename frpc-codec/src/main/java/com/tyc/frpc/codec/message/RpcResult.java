@@ -20,6 +20,13 @@ public class RpcResult extends Message{
         this.serializeType = SerializeType.getByMsg(serializeType);
     }
 
+    public RpcResult(Integer code, Integer id, Object resultData,SerializeType serializeType) {
+        this.code = code;
+        this.id = id;
+        this.resultData = resultData;
+        this.serializeType = serializeType;
+    }
+
     public Integer getCode() {
         return code;
     }
